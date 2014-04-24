@@ -7,6 +7,11 @@ public class TeamBot
 		private String name;
 		private List<String> members;
 
+		public Team()
+		{
+			this.members = new ArrayList<String>();
+		}
+
 		public Team(String name, List<String> members)
 		{
 			this.name = name;
@@ -34,11 +39,11 @@ public class TeamBot
 		}
 	}
 
-	private Set<String, Team> teams;
+	private Map<String, Team> teams;
 
 	public TeamBot()
 	{
-		this.teams = new HashSet<String, Team>();
+		this.teams = new HashMap<String, Team>();
 	}
 
 	public void parse(String[] args)
@@ -50,11 +55,33 @@ public class TeamBot
 
 		if(args[0] == "create" && args[1] == "team" && args[2] != null)
 		{
-			//create team and add person to it
-			Team team = new Team();
-			teams.put("test", new Team
+			createTeam(args[2]);
 		}
 	}
+
+	private boolean createTeam(String teamName)
+	{
+		Team targetTeam = teams.get(teamName);		
+		if(targetTeam != null)
+			//team already exists; exit
+			return false;
+		
+		//create list of members for team
+		List<String> members = targetTeam.getMembers();
+		if(members == null)
+		{
+			targetTeam.setMembers(new ArrayList<String>());
+			members = targetTeam.getMembers();
+		}
+
+		members.add("person1");
+		//create team and add member to it
+		Team newTeam = new Team(teamName, members);
+		teams.put("team1", newTeam);
+
+		return true;
+	}
+
 /*
 create team <teamname>
 join <teamname>
