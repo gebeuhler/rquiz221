@@ -1,6 +1,7 @@
 import java.util.*;
+import org.jibble.pircbot.*;
 
-public class TeamBot
+public class TeamBot extends PircBot
 {
 	private class Team
 	{
