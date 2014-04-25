@@ -48,56 +48,96 @@ public class TeamBot extends PircBot
 		this.setName("TeamBot1234");
 	}
 
-	public void parse(String[] args)
-	{
-		if(args.length == 0)
-		{
-			System.out.println("Incorrect usage doofus");
-		}
-
-		if(args[0] == "create" && args[1] == "team" && args[2] != null)
-		{
-			createTeam(args[2]);
-		}
-	}
-
 	public void onMessage(String channel, String sender,
                        String login, String hostname, String message) {
-        if (message.equalsIgnoreCase("time")) {
+      if (message.equalsIgnoreCase("time")) {
             String time = new java.util.Date().toString();
-            sendMessage(channel, sender + ": The time is now " + time);
-        }
+				//Send to channel            
+				sendMessage(channel, sender + ": The time is now " + time);
+				//send PM				
+				//sendMessage(sender, sender + ": The time is now " + time);
+      }
+		//create team <teamname>
+		if (message.matches("create team \\w+"))
+		{
+			//TODO: Move this logic to createTeam()?
+			String[] splitMessage = message.split("\\s+");
+			if(createTeam(sender, splitMessage[2]))
+				sendMessage(channel, "team " + splitMessage[2] + " created!");
+			else
+				sendMessage(channel, "team " + splitMessage[2] + " already exists!");
+		}
+		//show teams
+		if(message.matches("show teams"))
+		{
+			sendMessage(channel, showTeams());
+		}
+		//show team <teamname>
+		if(message.matches("show team \\w+"))
+		{
+			//TODO: Move this logic to showTeam()?
+			String[] splitMessage = message.split("\\s+");
+			sendMessage(channel, showTeam(splitMessage[2]));
+		}
     }
 
-	private boolean createTeam(String teamName)
+	private boolean createTeam(String memberName, String teamName)
 	{
 		Team targetTeam = teams.get(teamName);		
 		if(targetTeam != null)
 			//team already exists; exit
 			return false;
-		
-		//create list of members for team
-		List<String> members = targetTeam.getMembers();
-		if(members == null)
-		{
-			targetTeam.setMembers(new ArrayList<String>());
-			members = targetTeam.getMembers();
-		}
 
-		members.add("person1");
+		//create member list
+		List<String> members = new ArrayList<String>();
+		members.add(memberName);
 		//create team and add member to it
 		Team newTeam = new Team(teamName, members);
-		teams.put("team1", newTeam);
+		teams.put(teamName, newTeam);
 
 		return true;
 	}
 
+	private String showTeams()
+	{
+		String retval = "";
+		//TODO: condense this duplicate code A
+		for(String teamName : teams.keySet())
+		{
+			retval += teamName + ", ";
+		}
+		//remove final comma space, kind of a hack think of something better!
+		retval = retval.substring(0, retval.length()-2);
+		return retval;
+	}
+
+	private String showTeam(String teamName)
+	{
+		String retval = "";
+		if(teams.get(teamName) == null)
+		{
+			retval = "Team does not exist!";
+		}
+		else
+		{
+			retval += "team " + teams.get(teamName).getName() + ": ";
+			//TODO: condense this duplicate code A
+			for(String memberName : teams.get(teamName).getMembers())
+			{
+				retval += memberName + ", ";
+			}
+			//remove final comma space, kind of a hack think of something better!
+			retval = retval.substring(0, retval.length()-2);
+		}
+		return retval;
+	}
+
 /*
-create team <teamname>
+create team <teamname> DONE
 join <teamname>
 leave team
-show teams
-show team <teamname>
+show teams DONE
+show team <teamname> DONE
 show my team
 delete team <teamname>
 reset
