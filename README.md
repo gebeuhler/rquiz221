@@ -4,9 +4,9 @@ gebeuhler@gmail.com
 To compile:
 (from project root)
 
-javac -classpath lib/pircbot.jar src/*.java -d classes
+javac -classpath lib/pircbot.jar src/*.java -d bin
 
 To run:
 (from project root)
 
-java -classpath lib/pircbot.jar:classes RunTeamBot
+java -classpath lib/pircbot.jar:bin RunTeamBot
