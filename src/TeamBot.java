@@ -25,10 +25,12 @@ public class TeamBot extends PircBot
 		{
 			//TODO: Move this logic to?
 			String[] splitMessage = message.split("\\s+");
+			String teamName = splitMessage[2];
+
 			if(createTeam(sender, splitMessage[2]))
-				sendMessage(channel, sender + ": team " + splitMessage[2] + " created!");
+				sendMessage(channel, sender + ": team " + teamName + " created!");
 			else
-				sendMessage(channel, sender + ": team " + splitMessage[2] + " already exists!");
+				sendMessage(channel, sender + ": team " + teamName + " already exists!");
 		}
 		//show teams
 		if(message.matches("show teams"))
@@ -64,21 +66,48 @@ public class TeamBot extends PircBot
 					sendMessage(channel, sender + ": you already belong to team " + teamName + "!");
 			}
 			else		
-				sendMessage(channel, sender + ": team " + teamName + " does not exist!");
+				sendMessage(channel, sender + ": team " + teamName + " does not exist! Try creating it.");
 		}
-		/*
+		
 		//leave team
 		if(message.matches("leave team"))
 		{
-			if(leaveTeam(sender))
+			if(leaveTeam(sender, true))
+				sendMessage(channel, sender + ": you have left your team!");
+			else
+				sendMessage(channel, sender + ": you are not on a team!");
 			//only input is sender
 		}
-		*/
+
+		//show my team
+		if(message.matches("show my team"))
+		{
+			if(leaveTeam(sender, false))
+				sendMessage(channel, sender + ": you are on team " + showMyTeam(sender));
+			else
+				sendMessage(channel, sender + ": you are not on a team!");
+		}
+
+		//delete team <teamname>
+		if(message.matches("delete team \\w+"))
+		{
+			String[] splitMessage = message.split("\\s+");
+			String teamName = splitMessage[2];
+			
+			if(doesTeamExist(teamName))
+			{
+				deleteTeam(teamName);
+				sendMessage(channel, sender + ": team " + teamName + " has been deleted!");
+			}
+			else
+				sendMessage(channel, sender + ": team " + teamName + " does not exist!");
+		}
+		
     }
 
 	private boolean createTeam(String memberName,  String teamName)
 	{
-		if(teams.get(teamName) != null)
+		if(teams.get(teamName) != null && !teams.get(teamName).isEmpty())
 		{
 			//team already exists, exit
 			return false;
@@ -140,23 +169,48 @@ public class TeamBot extends PircBot
 	
 	private boolean doesTeamExist(String teamName)
 	{
-		if(teams.get(teamName) != null)
+		if(teams.get(teamName) != null  && !teams.get(teamName).isEmpty())
 		{
 			return true;
 		}
 		return false;
 	}
-	/*
-	private boolean leaveTeam(String memberName)
+	
+	private boolean leaveTeam(String memberName, boolean deleteFlag)
 	{
-		if(teams.get(teamName) != null)
+		//first check if user belongs to team
+		for(List<String> members: teams.values())
 		{
-			teams.get(teamName).getMembers().remove(memberName)
-			return true;
+			if(members.contains(memberName))
+			{
+				if(deleteFlag)
+					members.remove(memberName);
+				return true;
+			}
 		}
+
 		return false;
 	}
-	*/
+
+	private String showMyTeam(String memberName)
+	{
+		for(Map.Entry<String, List<String>> entry: teams.entrySet())
+		{
+			if(entry.getValue().contains(memberName))
+			{
+				return entry.getKey();
+			}	
+		}
+		
+		return "";
+	}
+
+	//assume team exists already
+	private void deleteTeam(String teamName)
+	{
+		teams.remove(teamName);
+	}
+	
 
 //data structure currently: map<String teamName, Team>
 //Team is: name, list of members
@@ -166,12 +220,12 @@ public class TeamBot extends PircBot
 
 /*
 create team <teamname> DONE
-join <teamname> 
-leave team
+join <teamname> DONE
+leave team DONE
 show teams DONE
-show team <teamname> 
-show my team
-delete team <teamname>
+show team <teamname> DONE
+show my team DONE
+delete team <teamname> 
 reset
 */
 }
