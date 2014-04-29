@@ -102,6 +102,12 @@ public class TeamBot extends PircBot
 			else
 				sendMessage(channel, sender + ": team " + teamName + " does not exist!");
 		}
+
+		if(message.matches("reset"))
+		{
+			deleteAllTeams();
+			sendMessage(channel, sender + ": all teams deleted!");
+		}
 		
     }
 
@@ -209,6 +215,11 @@ public class TeamBot extends PircBot
 	private void deleteTeam(String teamName)
 	{
 		teams.remove(teamName);
+	}
+
+	private void deleteAllTeams()
+	{
+		teams = new HashMap<String, List<String>>();
 	}
 	
 
