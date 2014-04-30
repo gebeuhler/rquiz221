@@ -1,6 +1,8 @@
 @Author: George Beuhler, 2014
 gebeuhler@gmail.com
 
+These instructions are for Linux.
+
 To compile:
 (from project root)
 

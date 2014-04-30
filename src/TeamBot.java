@@ -8,22 +8,19 @@ public class TeamBot extends PircBot
 	public TeamBot()
 	{
 		this.teams = new HashMap<String, List<String>>();
-		this.setName("TeamBot1234");
+		this.setName("TeamBot");
 	}
 
 	public void onMessage( String channel,  String sender,
-                        String login,  String hostname,  String message) {
+                        String login,  String hostname,  String message) 
+	{
       if (message.equalsIgnoreCase("time")) {
             String time = new java.util.Date().toString();
-				//Send to channel            
 				sendMessage(channel, sender + ": The time is now " + time);
-				//send PM				
-				//sendMessage(sender, sender + ": The time is now " + time);
       }
 		//create team <teamname>
 		if (message.matches("create team \\w+"))
 		{
-			//TODO: Move this logic to?
 			String[] splitMessage = message.split("\\s+");
 			String teamName = splitMessage[2];
 
@@ -38,12 +35,11 @@ public class TeamBot extends PircBot
 			if(teams.isEmpty())
 				sendMessage(channel, sender + ": no teams exist!");
 			else	
-				sendMessage(channel, showTeams());
+				sendMessage(channel, sender + ": " + showTeams());
 		}
 		//show team <teamname>
 		if(message.matches("show team \\w+"))
 		{
-			//TODO: Move this logic to?
 			String[] splitMessage = message.split("\\s+");
 			String teamName = splitMessage[2];
 			
@@ -68,7 +64,6 @@ public class TeamBot extends PircBot
 			else		
 				sendMessage(channel, sender + ": team " + teamName + " does not exist! Try creating it.");
 		}
-		
 		//leave team
 		if(message.matches("leave team"))
 		{
@@ -78,16 +73,15 @@ public class TeamBot extends PircBot
 				sendMessage(channel, sender + ": you are not on a team!");
 			//only input is sender
 		}
-
 		//show my team
+		//Does not handle user being on multiple teams. Will return the first one found.
 		if(message.matches("show my team"))
 		{
 			if(leaveTeam(sender, false))
-				sendMessage(channel, sender + ": you are on team " + showMyTeam(sender));
+				sendMessage(channel, sender + ": you are on team " + showMyTeam(sender) + "!");
 			else
 				sendMessage(channel, sender + ": you are not on a team!");
 		}
-
 		//delete team <teamname>
 		if(message.matches("delete team \\w+"))
 		{
@@ -102,7 +96,7 @@ public class TeamBot extends PircBot
 			else
 				sendMessage(channel, sender + ": team " + teamName + " does not exist!");
 		}
-
+		//reset
 		if(message.matches("reset"))
 		{
 			deleteAllTeams();
@@ -146,7 +140,7 @@ public class TeamBot extends PircBot
 	//assume team exists already
 	private String getTeamMembers(String teamName)
 	{
-		String memberList = "team " + teamName + ": ";
+		String memberList = "team " + teamName + " contains these users: ";
 		List<String> members = teams.get(teamName);
 		int size = members.size();
 		
@@ -221,22 +215,10 @@ public class TeamBot extends PircBot
 	{
 		teams = new HashMap<String, List<String>>();
 	}
-	
 
-//data structure currently: map<String teamName, Team>
-//Team is: name, list of members
-//simplify to: map<String teamName, List<String>>
-//worth a try in new branch
-
-
-/*
-create team <teamname> DONE
-join <teamname> DONE
-leave team DONE
-show teams DONE
-show team <teamname> DONE
-show my team DONE
-delete team <teamname> 
-reset
-*/
+	//Using this to get around protected modifier of setName() so it can be called in main method. Not sure if I like this solution
+	public void setBotName(String name)
+	{
+		setName(name);
+	}
 }
