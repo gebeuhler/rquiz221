@@ -1,16 +1,15 @@
 import org.jibble.pircbot.PircBot;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 public class TeamBot extends PircBot
 {
-    private Map<String, Set<String>> teams;
+    private Map<String, Team> teams;
 
     public TeamBot() {
-        this.teams = new HashMap<String, Set<String>>();
+        this.teams = new HashMap<String, Team>();
         this.setName("TeamBot");
     }
 
@@ -96,15 +95,16 @@ public class TeamBot extends PircBot
     }
 
     private boolean createTeam(String memberName, String teamName) {
-        if (teams.get(teamName) != null && !teams.get(teamName).isEmpty()) {
+        if (teams.get(teamName) != null
+                && !teams.get(teamName).getMembers().isEmpty()) {
             //team already exists, exit
             return false;
         }
 
         //create new team
-        Set<String> members = new HashSet<String>();
-        members.add(memberName);
-        teams.put(teamName, members);
+        Team newTeam = new Team(teamName);
+        newTeam.addMember(memberName);
+        teams.put(teamName, newTeam);
         return true;
     }
 
@@ -126,10 +126,10 @@ public class TeamBot extends PircBot
     //assume team exists already
     private String getTeamMembers(String teamName) {
         String memberList = "team " + teamName + " contains these users: ";
-        Set<String> members = teams.get(teamName);
-        int size = members.size();
+        Team team = teams.get(teamName);
+        int size = team.getMembers().size();
 
-        for (String memberName : members) {
+        for (String memberName : team.getMembers()) {
             memberList += memberName;
             if (--size != 0)
                 memberList += ", ";
@@ -138,28 +138,26 @@ public class TeamBot extends PircBot
         return memberList;
     }
 
+    // private iterateThroughTeams()
+
     //assumes team already exists!!
     private boolean joinTeam(String teamName, String memberName) {
-        Set<String> members = teams.get(teamName);
+        Team team = teams.get(teamName);
 
-        if (members.contains(memberName))
-            return false;
-
-        members.add(memberName);
-        return true;
+        return team.getMembers().add(memberName);
 
     }
 
     private boolean doesTeamExist(String teamName) {
-        return (teams.get(teamName) != null && !teams.get(teamName).isEmpty());
+        return (teams.get(teamName) != null && !teams.get(teamName).getMembers().isEmpty());
     }
 
     private boolean leaveTeam(String memberName, boolean deleteFlag) {
         //first check if user belongs to team
-        for (Set<String> members : teams.values()) {
-            if (members.contains(memberName)) {
+        for (Team team : teams.values()) {
+            if (team.getMembers().contains(memberName)) {
                 if (deleteFlag)
-                    members.remove(memberName);
+                    team.getMembers().remove(memberName);
                 return true;
             }
         }
@@ -168,8 +166,8 @@ public class TeamBot extends PircBot
     }
 
     private String showMyTeam(String memberName) {
-        for (Map.Entry<String, Set<String>> entry : teams.entrySet()) {
-            if (entry.getValue().contains(memberName)) {
+        for (Map.Entry<String, Team> entry : teams.entrySet()) {
+            if (entry.getValue().getMembers().contains(memberName)) {
                 return entry.getKey();
             }
         }
@@ -183,7 +181,7 @@ public class TeamBot extends PircBot
     }
 
     private void deleteAllTeams() {
-        teams = new HashMap<String, Set<String>>();
+        teams = new HashMap<String, Team>();
     }
 
     //Using this to get around protected modifier of setName() so it can be called in main method. Not sure if I like this solution

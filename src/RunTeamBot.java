@@ -1,4 +1,6 @@
-import org.jibble.pircbot.*;
+import org.jibble.pircbot.IrcException;
+import org.jibble.pircbot.NickAlreadyInUseException;
+
 import java.io.IOException;
 
 public class RunTeamBot
@@ -16,10 +18,8 @@ public class RunTeamBot
 			try{
 		   	// Connect to the IRC server.
 		   	teamBot.connect("irc.freenode.net");
-				break;
-			}
-			
-			catch(NickAlreadyInUseException e)
+                break;
+            } catch(NickAlreadyInUseException e)
 			{
 				teamBot.setBotName(teamBot.getName() + "_");
 				teamBot.log(e.getMessage());
